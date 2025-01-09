@@ -12,7 +12,7 @@ export async function validateRequest(
   res: Response,
   next: NextFunction,
 ) {
-  const ip = req.ip || req.socket.remoteAddress;
+  const ip = req.ip || req.socket.remoteAddress || "0.0.0.0";
 
   try {
     if (!req.headers.authorization?.startsWith("Bearer ")) {
