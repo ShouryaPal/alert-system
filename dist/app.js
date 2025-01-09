@@ -12,16 +12,15 @@ const app = (0, express_1.default)();
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
-// Protected endpoint
 app.post("/api/submit", requestMonitor_1.validateRequest, (req, res) => {
     res.json({ message: "Success" });
 });
-// Metrics endpoint
-app.get("/api/metrics/:ip", async (req, res) => {
+app.get("/api/metrics", async (req, res) => {
+    const ip = req.header("X-Client-IP") || "unknown";
     try {
         const metrics = await prismaService_1.prisma.failedRequest.findMany({
             where: {
-                ip: req.params.ip,
+                ip,
             },
             orderBy: {
                 timestamp: "desc",
@@ -34,7 +33,6 @@ app.get("/api/metrics/:ip", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch metrics" });
     }
 });
-// Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: "Something broke!" });

@@ -16,14 +16,17 @@ class RedisService {
         const windowMs = config_1.config.WINDOW_MINUTES * 60 * 1000;
         const windowStart = now - windowMs;
         try {
-            // Remove old entries
             await this.client.zremrangebyscore(key, 0, windowStart);
-            // Add new entry using the correct score member format
             await this.client.zadd(key, { score: now, member: now.toString() });
-            // Set expiration
             await this.client.expire(key, config_1.config.WINDOW_MINUTES * 60);
-            // Get count of failed attempts in window
             const count = await this.client.zcard(key);
+            if (count === 0) {
+                await this.client.del(key);
+                console.log(`Key deleted for IP ${ip} as no attempts are within the window`);
+            }
+            else {
+                console.log(`Failed attempts for IP ${ip}: ${count}`);
+            }
             return count;
         }
         catch (error) {

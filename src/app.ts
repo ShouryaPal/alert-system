@@ -10,17 +10,17 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Protected endpoint
 app.post("/api/submit", validateRequest, (req, res) => {
   res.json({ message: "Success" });
 });
 
-// Metrics endpoint
-app.get("/api/metrics/:ip", async (req, res) => {
+app.get("/api/metrics", async (req, res) => {
+  const ip = req.header("IP") || "unknown";
+
   try {
     const metrics = await prisma.failedRequest.findMany({
       where: {
-        ip: req.params.ip,
+        ip,
       },
       orderBy: {
         timestamp: "desc",
@@ -33,7 +33,6 @@ app.get("/api/metrics/:ip", async (req, res) => {
   }
 });
 
-// Error handling middleware
 app.use(
   (
     err: Error,

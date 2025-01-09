@@ -8,10 +8,11 @@ datasource db {
 }
 
 model FailedRequest {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  ip        String
-  timestamp DateTime @default(now())
-  reason    String
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  ip            String
+  timestamp     DateTime @default(now())
+  formattedTime String
+  reason        String
 
   @@index([ip])
 }

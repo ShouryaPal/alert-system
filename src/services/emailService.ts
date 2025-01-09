@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { config } from "../config";
+import { format } from "date-fns";
 
 export class EmailService {
   private transporter: nodemailer.Transporter;
@@ -17,6 +18,9 @@ export class EmailService {
   }
 
   async sendAlert(ip: string, attemptCount: number): Promise<void> {
+    const now = new Date();
+    const formattedTime = format(now, "MMM-d HH:mm");
+
     await this.transporter.sendMail({
       from: config.SMTP_USER,
       to: config.ALERT_RECIPIENT,
@@ -25,7 +29,7 @@ export class EmailService {
         Alert: IP ${ip} has made ${attemptCount} failed attempts
         in the last ${config.WINDOW_MINUTES} minutes.
 
-        Time: ${new Date().toISOString()}
+        Time: ${formattedTime}
       `,
     });
   }
