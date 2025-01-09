@@ -16,7 +16,7 @@ app.post("/api/submit", requestMonitor_1.validateRequest, (req, res) => {
     res.json({ message: "Success" });
 });
 app.get("/api/metrics", async (req, res) => {
-    const ip = req.header("X-Client-IP") || "unknown";
+    const ip = req.header("IP") || "unknown";
     try {
         const metrics = await prismaService_1.prisma.failedRequest.findMany({
             where: {

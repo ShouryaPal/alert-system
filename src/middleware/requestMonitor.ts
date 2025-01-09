@@ -37,16 +37,14 @@ export async function validateRequest(
           },
         });
 
-        if (attemptCount >= config.MAX_ATTEMPTS) {
-          console.log(
-            `Sending alert for IP ${ip} with ${attemptCount} failed attempts.`,
-          );
-          await emailService.sendAlert(ip, attemptCount);
-        } else {
-          console.log(
-            `IP ${ip} has ${attemptCount} failed attempts. No alert triggered.`,
-          );
-        }
+        console.log(
+          `Sending alert for IP ${ip} with ${attemptCount} failed attempts.`,
+        );
+        await emailService.sendAlert(ip, attemptCount);
+      } else {
+        console.log(
+          `IP ${ip} has ${attemptCount} failed attempts. No alert triggered.`,
+        );
       }
 
       return res.status(401).json({ error: reason });

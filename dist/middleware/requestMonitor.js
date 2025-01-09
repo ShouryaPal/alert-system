@@ -13,26 +13,23 @@ async function validateRequest(req, res, next) {
     try {
         if (!((_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.startsWith("Bearer "))) {
             const reason = "Invalid authorization header";
-            // Increment the failed request count
             const attemptCount = await redisService.trackFailedRequest(ip);
-            // Only log to the database and send an alert on the 5th attempt or more
+            const formattedTime = new Intl.DateTimeFormat("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+            }).format(new Date());
             if (attemptCount >= config_1.config.MAX_ATTEMPTS) {
-                // Store the failed request details in the database
                 await prismaService_1.prisma.failedRequest.create({
                     data: {
                         ip,
                         reason,
                         timestamp: new Date(),
-                        formattedTime: new Intl.DateTimeFormat("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: false,
-                        }).format(new Date()),
+                        formattedTime: formattedTime,
                     },
                 });
-                // Send an alert email if it's the 5th attempt
                 if (attemptCount >= config_1.config.MAX_ATTEMPTS) {
                     console.log(`Sending alert for IP ${ip} with ${attemptCount} failed attempts.`);
                     await emailService.sendAlert(ip, attemptCount);
@@ -43,7 +40,6 @@ async function validateRequest(req, res, next) {
             }
             return res.status(401).json({ error: reason });
         }
-        // If valid, proceed to the next middleware
         next();
     }
     catch (error) {
